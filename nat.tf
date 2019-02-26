@@ -1,12 +1,3 @@
-module "nat_label" {
-  source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.3.3"
-  namespace = "${var.namespace}"
-  stage     = "${var.stage}"
-  name      = "${var.name}"
-  delimiter = "${var.delimiter}"
-  tags      = "${var.tags}"
-}
-
 locals {
   nat_gateways_count = "${var.nat_gateway_enabled == "true" ? length(var.availability_zones) : 0}"
 }
@@ -18,6 +9,7 @@ resource "aws_eip" "default" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes = ["tags"]
   }
 }
 
@@ -25,7 +17,6 @@ resource "aws_nat_gateway" "default" {
   count         = "${local.nat_gateways_count}"
   allocation_id = "${element(aws_eip.default.*.id, count.index)}"
   subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
-  tags          = "${module.nat_label.tags}"
 
   lifecycle {
     create_before_destroy = true
