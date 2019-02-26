@@ -12,8 +12,7 @@ module "private_subnet_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.3.3"
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
-  name       = "${var.name}"
-  attributes = ["private"]
+  name       = "private"
   tags       = "${var.tags}"
 }
 
@@ -28,6 +27,10 @@ resource "aws_subnet" "private" {
   cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(local.private_subnet_count * 2, 2)), count.index)}"
 
   tags = "${merge(module.private_subnet_label.tags, map("Name",format("%s%s%s", module.private_subnet_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+
+  lifecycle {
+    ignore_changes = ["tags"]
+  }
 }
 
 resource "aws_route_table" "private" {
@@ -35,6 +38,10 @@ resource "aws_route_table" "private" {
   vpc_id = "${data.aws_vpc.default.id}"
 
   tags = "${module.private_label.tags}"
+
+  lifecycle {
+    ignore_changes = ["tags"]
+  }
 }
 
 resource "aws_route_table_association" "private" {
@@ -68,4 +75,8 @@ resource "aws_network_acl" "private" {
   }
 
   tags = "${module.private_label.tags}"
+
+  lifecycle {
+    ignore_changes = ["tags"]
+  }
 }
