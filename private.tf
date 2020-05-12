@@ -80,3 +80,10 @@ resource "aws_network_acl" "private" {
     ignore_changes = ["tags"]
   }
 }
+
+resource "aws_route" "private_peering" {
+  count = "${var.peering_enabled ? length(var.availability_zones) : 0}"
+  route_table_id = "${element(aws_route_table.private.*.id, count.index)}"
+  destination_cidr_block = "${var.peering_cidr}"
+  vpc_peering_connection_id = "${var.peering_connection_id}"
+}

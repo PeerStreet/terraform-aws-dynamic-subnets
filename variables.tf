@@ -80,3 +80,18 @@ variable "nat_gateway_enabled" {
   description = "Flag to enable/disable NAT gateways for private subnets"
   default     = "true"
 }
+
+variable "peering_enabled" {
+  description = "Enable creation of routes for peering with new Staging VPC"
+  default = "false"
+}
+
+variable "peering_cidr" {
+  description = "If peering_enabled is set to true, should contain peer VPC CIDR"
+  default = ""
+}
+
+variable "peering_connection_id" {
+  description = "If peering_enabled is set to true, should contain id of VPC peering connection"
+  default = ""
+}
